@@ -1,3 +1,5 @@
+__precompile__()
+
 module PackageManagerCLI
 import PkgDev
 
@@ -13,8 +15,8 @@ function exec_cmd(::Type{Val{:develop}}, args)
 end
 
 function exec_cmd(::Type{Val{:add}}, args)
-  const thispkg = args["pkg"]
-  const thisver = args["ver"]
+  thispkg = args["pkg"]
+  thisver = args["ver"]
   print("Adding ", thispkg)
   if thisver == nothing
     print("\n")
@@ -43,7 +45,7 @@ function exec_cmd(::Type{Val{:add}}, args)
 end
 
 function exec_cmd(::Type{Val{:build}}, args)
-  const thispkg = args["pkg"]
+  thispkg = args["pkg"]
   @assert haskey(pkglist, thispkg)
   try
     Pkg.build(thispkg)
@@ -54,10 +56,10 @@ function exec_cmd(::Type{Val{:build}}, args)
 end
 
 function exec_cmd(::Type{Val{:checkout}}, args)
-  const thispkg = args["pkg"]
-  const thisbranch = args["branch"]
+  thispkg = args["pkg"]
+  thisbranch = args["branch"]
   @assert haskey(pkglist, thispkg)
-  try 
+  try
     if thisbranch != nothing
       Pkg.checkout(thispkg, thisbranch)
     else
@@ -69,14 +71,26 @@ function exec_cmd(::Type{Val{:checkout}}, args)
   end
 end
 function exec_cmd(::Type{Val{:link}}, args)
-  const frompath = args["srcpath"]
-  const installpath = joinpath(pkgdir, args["destpkg"])
+  frompath = args["srcpath"]
+  installpath = joinpath(pkgdir, args["destpkg"])
   @assert isdir(frompath) && !isdir(installpath)
   println("Linking ", args["destpkg"], " from ", frompath)
   symlink(frompath, installpath)
 end
+function exec_cmd(::Type{Val{:links}}, args)
+  for subdir in readdir(pkgdir)
+    thisdir = joinpath(pkgdir, subdir)
+    if subdir == ".cache"
+      continue
+    end
+    if islink(thisdir)
+      println(subdir, "=>", readlink(thisdir))
+    end
+  end
+  return 0
+end
 function exec_cmd(::Type{Val{:delete}}, args)
-  const thispkg = args["pkg"]
+  thispkg = args["pkg"]
   if !haskey(pkglist, thispkg)
     return 0
   end
@@ -95,18 +109,18 @@ function exec_cmd(::Type{Val{:search}}, args)
   #   required = true
 end
 function exec_cmd(::Type{Val{:test}}, args)
-  const thispkg = args["pkg"]
+  thispkg = args["pkg"]
   @assert haskey(pkglist, thispkg)
   try
     Pkg.test(thispkg)
     return 0
-  catch 
+  catch
     return -1
   end
 end
 function exec_cmd(::Type{Val{:tag}}, args)
-  const thispkg = args["pkg"]
-  const thisver = args["ver"]
+  thispkg = args["pkg"]
+  thisver = args["ver"]
   @assert haskey(pkglist, thispkg)
   @assert in(thisver, (:patch, :minor, :major))
   println("Tagging ", thisver, " version of ", thispkg)
@@ -118,14 +132,14 @@ function exec_cmd(::Type{Val{:tag}}, args)
   end
 end
 function exec_cmd(::Type{Val{:unlink}}, args)
-  const installpath = joinpath(pkgdir, args["pkg"])
+  installpath = joinpath(pkgdir, args["pkg"])
   @assert islink(installpath)
   println("Unlinking ", args["pkg"])
   rm(installpath)
 end
 function exec_cmd(::Type{Val{:pin}}, args)
-  const thispkg = args["pkg"]
-  const thisver = args["ver"]
+  thispkg = args["pkg"]
+  thisver = args["ver"]
   @assert haskey(pkglist, thispkg)
   try
     if thisver == nothing
@@ -140,7 +154,7 @@ function exec_cmd(::Type{Val{:pin}}, args)
   end
 end
 function exec_cmd(::Type{Val{:free}}, args)
-  const thispkg = args["pkg"]
+  thispkg = args["pkg"]
   @assert haskey(pkglist, thispkg)
   try
     Pkg.free(thispkg)

@@ -71,7 +71,7 @@ function parse_cl_settings()
       help = "verbose output"
       action = :store_true
   end
-  
+
   @add_arg_table s["develop"] begin
     "pkg"
       help = "Package to generate"
@@ -167,8 +167,9 @@ const s = parse_cl_settings()
 usage() = parse_args(["--help"], s)
 
 function main()
-  const args = parse_args(s)
-  const cmd = args["%COMMAND%"]
+  args = parse_args(s)
+  cmd = args["%COMMAND%"]
+  
   if cmd == nothing
     usage()
   else
