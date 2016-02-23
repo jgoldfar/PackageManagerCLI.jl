@@ -82,7 +82,7 @@ function parse_cl_settings()
     "path"
       help = "Path for generated package"
       required = false
-      default = basename(pwd())
+      default = first(splitext(basename(pwd())))
   end
   @add_arg_table s["add"] begin
     "pkg"
@@ -109,7 +109,7 @@ function parse_cl_settings()
     "destpkg"
       help = "Destination package name"
       required = false
-      default = basename(pwd())
+      default = first(splitext(basename(pwd())))
     "srcpath"
       help = "Source folder for link"
       required = false
@@ -144,7 +144,7 @@ function parse_cl_settings()
     "pkg"
       help = "Package to unlink"
       required = false
-      default = basename(pwd())
+      default = first(splitext(basename(pwd())))
   end
   @add_arg_table s["pin"] begin
     "pkg"
@@ -169,7 +169,7 @@ usage() = parse_args(["--help"], s)
 function main()
   args = parse_args(s)
   cmd = args["%COMMAND%"]
-  
+
   if cmd == nothing
     usage()
   else
