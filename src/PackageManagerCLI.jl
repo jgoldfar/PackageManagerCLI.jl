@@ -73,9 +73,17 @@ end
 function exec_cmd(::Type{Val{:link}}, args)
   frompath = args["srcpath"]
   installpath = joinpath(pkgdir, args["destpkg"])
-  @assert isdir(frompath) && !isdir(installpath)
+  if !isdir(frompath)
+    println("Source path ", frompath, " does not exist.")
+    return -1
+  end
+  if isdir(installpath)
+    println("Destination path ", installpath, " exists.")
+    return -1
+  end
   println("Linking ", args["destpkg"], " from ", frompath)
   symlink(frompath, installpath)
+  return 0
 end
 function exec_cmd(::Type{Val{:links}}, args)
   for subdir in readdir(pkgdir)
@@ -136,6 +144,7 @@ function exec_cmd(::Type{Val{:unlink}}, args)
   @assert islink(installpath)
   println("Unlinking ", args["pkg"])
   rm(installpath)
+  return 0
 end
 function exec_cmd(::Type{Val{:pin}}, args)
   thispkg = args["pkg"]
