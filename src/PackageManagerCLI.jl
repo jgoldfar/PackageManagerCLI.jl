@@ -97,6 +97,18 @@ function exec_cmd(::Type{Val{:links}}, args)
   end
   return 0
 end
+function exec_cmd(::Type{Val{:links}}, args)
+  for subdir in readdir(pkgdir)
+    thisdir = joinpath(pkgdir, subdir)
+    if subdir == ".cache"
+      continue
+    end
+    if islink(thisdir)
+      println(subdir, "=>", readlink(thisdir))
+    end
+  end
+  return 0
+end
 function exec_cmd(::Type{Val{:delete}}, args)
   thispkg = args["pkg"]
   if !haskey(pkglist, thispkg)
