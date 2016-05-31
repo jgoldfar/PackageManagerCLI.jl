@@ -9,9 +9,30 @@ const pkgdir = Pkg.dir()
 const pkglist = Pkg.installed()
 const pkgavail = Pkg.available()
 
+function exec_cmd(::Type{Val{:update}}, args)
+  try
+    Pkg.update()
+    return 0
+  catch
+    return -1
+  end
+  # "update"
+  #   help = "Update package metadata and resolve all packages"
+  #   action = :command
+
+end
+
 function exec_cmd(::Type{Val{:develop}}, args)
-  warn("Sorry, develop command not yet implemented.")
-  exit(-1)
+  thispkg = args["pkg"]
+  destpath = args["path"]
+  tmppath = tempdir()
+  frompath = joinpath(tmppath, thispkg)
+  rm(frompath, force=true, recursive=true)
+  PkgDev.generate(thispkg, args["license"], path = tmppath)
+  for genfile in readdir(frompath)
+    mv(joinpath(frompath, genfile), joinpath(destpath, genfile), remove_destination=args["force"])
+  end
+  return exec_cmd(Val{:link}, Dict("srcpath" => destpath, "destpkg" => thispkg))
 end
 
 function exec_cmd(::Type{Val{:add}}, args)
@@ -97,21 +118,10 @@ function exec_cmd(::Type{Val{:links}}, args)
   end
   return 0
 end
-function exec_cmd(::Type{Val{:links}}, args)
-  for subdir in readdir(pkgdir)
-    thisdir = joinpath(pkgdir, subdir)
-    if subdir == ".cache"
-      continue
-    end
-    if islink(thisdir)
-      println(subdir, "=>", readlink(thisdir))
-    end
-  end
-  return 0
-end
 function exec_cmd(::Type{Val{:delete}}, args)
   thispkg = args["pkg"]
   if !haskey(pkglist, thispkg)
+    println("Package ", thispkg, " is not installed.")
     return 0
   end
   try
@@ -185,4 +195,5 @@ function exec_cmd(::Type{Val{:free}}, args)
   end
 end
 
+include("jpm_helpers.jl")
 end # module
