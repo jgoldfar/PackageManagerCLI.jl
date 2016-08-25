@@ -9,19 +9,6 @@ const pkgdir = Pkg.dir()
 const pkglist = Pkg.installed()
 const pkgavail = Pkg.available()
 
-function exec_cmd(::Type{Val{:update}}, args)
-  try
-    Pkg.update()
-    return 0
-  catch
-    return -1
-  end
-  # "update"
-  #   help = "Update package metadata and resolve all packages"
-  #   action = :command
-
-end
-
 function exec_cmd(::Type{Val{:develop}}, args)
   thispkg = args["pkg"]
   destpath = args["path"]
