@@ -65,6 +65,20 @@ function exec_cmd(::Type{Val{:add}}, args)
   end
 end
 
+function exec_cmd(::Type{Val{:update}}, args)
+  try
+    Pkg.update()
+    return 0
+  catch
+    return -1
+  end
+  # "update"
+  #   help = "Update package metadata and resolve all packages"
+  #   action = :command
+
+end
+
+
 function exec_cmd(::Type{Val{:build}}, args)
   thispkg = args["pkg"]
   @assert haskey(pkglist, thispkg)
