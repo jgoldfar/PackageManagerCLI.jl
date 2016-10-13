@@ -6,8 +6,24 @@ import PkgDev
 export exec_cmd
 
 const pkgdir = Pkg.dir()
-const pkglist = Pkg.installed()
-const pkgavail = Pkg.available()
+
+function exec_cmd(::Type{Val{:list}}, args)
+    pkginstalled = Pkg.installed()
+    if args["plain"]
+        for (name, v) in pkginstalled
+            println(name)
+        end
+    else
+        for (name, v) in pkginstalled
+            println(name, " => ", v)
+        end
+    end
+    return 0
+end
+function exec_cmd(::Type{Val{:status}}, args)
+    Pkg.status()
+    return 0
+end
 
 function exec_cmd(::Type{Val{:develop}}, args)
   thispkg = args["pkg"]
@@ -31,7 +47,7 @@ function exec_cmd(::Type{Val{:add}}, args)
   else
     print(" version", thisver)
   end
-  if haskey(pkglist, thispkg)
+  if haskey(Pkg.installed(), thispkg)
     try
       if thisver == nothing
         Pkg.add(thispkg)
@@ -68,7 +84,7 @@ end
 
 function exec_cmd(::Type{Val{:build}}, args)
   thispkg = args["pkg"]
-  @assert haskey(pkglist, thispkg)
+  @assert haskey(Pkg.installed(), thispkg)
   try
     Pkg.build(thispkg)
     return 0
@@ -80,7 +96,7 @@ end
 function exec_cmd(::Type{Val{:checkout}}, args)
   thispkg = args["pkg"]
   thisbranch = args["branch"]
-  @assert haskey(pkglist, thispkg)
+  @assert haskey(Pkg.installed(), thispkg)
   try
     if thisbranch != nothing
       Pkg.checkout(thispkg, thisbranch)
@@ -121,7 +137,7 @@ function exec_cmd(::Type{Val{:links}}, args)
 end
 function exec_cmd(::Type{Val{:delete}}, args)
   thispkg = args["pkg"]
-  if !haskey(pkglist, thispkg)
+  if !haskey(Pkg.installed(), thispkg)
     println("Package ", thispkg, " is not installed.")
     return 0
   end
@@ -141,7 +157,7 @@ function exec_cmd(::Type{Val{:search}}, args)
 end
 function exec_cmd(::Type{Val{:test}}, args)
   thispkg = args["pkg"]
-  @assert haskey(pkglist, thispkg)
+  @assert haskey(Pkg.installed(), thispkg)
   try
     Pkg.test(thispkg)
     return 0
@@ -152,7 +168,7 @@ end
 function exec_cmd(::Type{Val{:tag}}, args)
   thispkg = args["pkg"]
   thisver = args["ver"]
-  @assert haskey(pkglist, thispkg)
+  @assert haskey(Pkg.installed(), thispkg)
   @assert in(thisver, (:patch, :minor, :major))
   println("Tagging ", thisver, " version of ", thispkg)
   try
@@ -172,7 +188,7 @@ end
 function exec_cmd(::Type{Val{:pin}}, args)
   thispkg = args["pkg"]
   thisver = args["ver"]
-  @assert haskey(pkglist, thispkg)
+  @assert haskey(Pkg.installed(), thispkg)
   try
     if thisver == nothing
       Pkg.pin(thispkg)
@@ -187,7 +203,7 @@ function exec_cmd(::Type{Val{:pin}}, args)
 end
 function exec_cmd(::Type{Val{:free}}, args)
   thispkg = args["pkg"]
-  @assert haskey(pkglist, thispkg)
+  @assert haskey(Pkg.installed(), thispkg)
   try
     Pkg.free(thispkg)
     return 0
