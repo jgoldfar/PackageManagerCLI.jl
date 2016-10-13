@@ -133,7 +133,59 @@ function parse_cl_settings()
         help = "If true, output newline-delimited names of packages."
         action = :store_true
     end
+    PWD = pwd()
+    default_pkgname = first(splitext(basename(PWD)))
+    @add_arg_table s["develop"] begin
+        "pkg"
+        help = "Package to generate"
+        required = false
+        default = default_pkgname
+        "path"
+        help = "Path for generated package"
+        required = false
+        default = pwd()
+        "--license"
+        help = "License to give new package"
+        arg_type = AbstractString
+        default = "MIT"
+        required = false
+        "--force"
+        help = "Force overwriting files in [path]"
+        action = :store_true
+    end
+    @add_arg_table s["link"] begin
+        "destpkg"
+        help = "Destination package name"
+        required = false
+        default = default_pkgname
+        "srcpath"
+        help = "Source folder for link"
+        required = false
+        default = pwd()
+    end
+    @add_arg_table s["unlink"] begin
+        "pkg"
+        help = "Package to unlink"
+        required = false
+        default = default_pkgname
+    end
     s
 end
 
 const jpm_cli_settings_default = parse_cl_settings()
+usage() = parse_args(["--help"], jpm_cli_settings_default)
+
+export parse_and_run
+function parse_and_run()
+    args = parse_args(jpm_cli_settings_default)
+    cmd = args["%COMMAND%"]
+
+    if cmd == nothing
+      usage()
+    else
+      # dump(args)
+      # dump(cmd)
+      return exec_cmd(Val{Symbol(cmd)}, args[cmd])
+    end
+    return 0
+end
