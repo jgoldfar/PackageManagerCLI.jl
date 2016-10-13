@@ -2,7 +2,7 @@ const frompath = joinpath(dirname(dirname(@__FILE__)), "src", "jpm")
 const installpath = joinpath("/usr", "local", "bin", "jpm")
 
 if isempty(ARGS) # Install
-  @unix? begin
+  @static is_unix() ? begin
     println("Installing jpm to ", installpath)
     try
       symlink(frompath, installpath)
