@@ -1,6 +1,6 @@
 using ArgParse
 
-function parse_cl_settings()
+function parse_cl_settings(PWD = pwd(), default_pkgname = first(splitext(basename(pwd()))))
     s = ArgParseSettings("jpm - CLI for the Julia Package Management and Development system.\n\nRun any command with the option -h to get help for that command.",
                          version = "0.1",
                          add_version = true,
@@ -133,8 +133,6 @@ function parse_cl_settings()
         help = "If true, output newline-delimited names of packages."
         action = :store_true
     end
-    PWD = pwd()
-    default_pkgname = first(splitext(basename(PWD)))
     @add_arg_table s["develop"] begin
         "pkg"
         help = "Package to generate"
@@ -176,8 +174,8 @@ const jpm_cli_settings_default = parse_cl_settings()
 usage() = parse_args(["--help"], jpm_cli_settings_default)
 
 export parse_and_run
-function parse_and_run()
-    args = parse_args(jpm_cli_settings_default)
+function parse_and_run(PWD = pwd(), default_pkgname = first(splitext(basename(pwd()))))
+    args = parse_args(parse_cl_settings(PWD, default_pkgname))
     cmd = args["%COMMAND%"]
 
     if cmd == nothing

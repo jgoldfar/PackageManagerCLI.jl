@@ -1,10 +1,8 @@
-#!/usr/bin/env julia
-module jpm
+#!/usr/bin/env julia-0.5
 using PackageManagerCLI
 
 function main()
-  parse_and_run()
+  parse_and_run(pwd())
 end
 
 exit(main())
-end # module
