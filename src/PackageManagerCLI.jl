@@ -32,10 +32,11 @@ function exec_cmd(::Type{Val{:develop}}, args)
   frompath = joinpath(tmppath, thispkg)
   rm(frompath, force=true, recursive=true)
   PkgDev.generate(thispkg, args["license"], path = tmppath)
+  mkpath(destpath)
   for genfile in readdir(frompath)
     mv(joinpath(frompath, genfile), joinpath(destpath, genfile), remove_destination=args["force"])
   end
-  return exec_cmd(Val{:link}, Dict("srcpath" => destpath, "destpkg" => thispkg))
+  return 0
 end
 
 function exec_cmd(::Type{Val{:add}}, args)
