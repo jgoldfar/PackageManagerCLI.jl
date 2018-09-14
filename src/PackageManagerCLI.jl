@@ -1,11 +1,15 @@
-VERSION >= v"0.4" && __precompile__()
-
 module PackageManagerCLI
 import PkgDev
-
+@static if VERSION >= v"0.7-"
+    using Pkg
+    # Assume PackageManagerCLI is installed in a Depot location
+    const pkgdir = dirname(dirname(dirname(Base.pathof(PackageManagerCLI))))
+else
+    const pkgdir = Pkg.dir()
+end
 export exec_cmd
 
-const pkgdir = Pkg.dir()
+
 
 function exec_cmd(::Type{Val{:list}}, args)
     pkginstalled = Pkg.installed()
