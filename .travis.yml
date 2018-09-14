@@ -16,6 +16,8 @@ matrix:
     - julia: nightly
 
 ## uncomment the following lines to override the default test script
-#script:
-#  - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
-#  - julia -e 'Pkg.clone(pwd()); Pkg.build("PackageManagerCLI"); Pkg.test("PackageManagerCLI"; coverage=true)'
+script:
+  - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
+  - julia -e 'VERSION < v"0.7-" && exit(); using Pkg; Pkg.add(PackageSpec(name="PkgDev", rev="kc/07"));'
+  - julia -e 'VERSION >= v"0.7-" && exit(); Pkg.clone(pwd()); Pkg.build("PackageManagerCLI");'
+  - julia --code-coverage=user test/runtests.jl
